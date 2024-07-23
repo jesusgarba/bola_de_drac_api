@@ -16,8 +16,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.AccountBox
+import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
@@ -54,21 +61,108 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
-@Preview(showSystemUi = true)
+object Dimensions {
+    val padding_4dp = 4.dp
+    val padding_8dp = 8.dp
+    val padding_16dp = 16.dp
+    val padding_24dp = 24.dp
+}
+
 @Composable
 fun InitScreen() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     ModalNavigationDrawer(
+        modifier = Modifier.background(Color.White),
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
-                Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = "PRUEBA",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+            Box(modifier = Modifier.width(250.dp)) {
+                ModalDrawerSheet() {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White)
+                            .padding(horizontal = 12.dp, vertical = 24.dp)
+                    ) {
+                        ChildDrawerConfig(
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.Settings,
+                                    tint = Color.Gray,
+                                    contentDescription = "settings icon"
+                                )
+                            },
+                            text = {
+                                Text(text = "Perfil", color = Color.Gray)
+                            }
+                        )
+
+                        ChildDrawerConfig(
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.Favorite,
+                                    tint = Color.Gray,
+                                    contentDescription = "settings icon"
+                                )
+                            },
+                            text = {
+                                Text(text = "Favorite list", color = Color.Gray)
+                            }
+                        )
+
+                        ChildDrawerConfig(
+                            icon = {
+                                Icon(
+                                    painterResource(id = R.drawable.ic_round_local_cafe_24),
+                                    tint = Color.Gray,
+                                    contentDescription = "about us"
+                                )
+                            },
+                            text = {
+                                Text(text = "About us", color = Color.Gray)
+                            }
+                        )
+
+                        ChildDrawerConfig(
+                            icon = {
+                                Icon(
+                                    painterResource(id = R.drawable.ic_round_policy_24),
+                                    tint = Color.Gray,
+                                    contentDescription = "privacy icon"
+                                )
+                            },
+                            text = {
+                                Text(text = "Privacy", color = Color.Gray)
+                            }
+                        )
+
+                        ChildDrawerConfig(
+                            icon = {
+                                Icon(
+                                    painterResource(id = R.drawable.ic_round_help_24),
+                                    tint = Color.Gray,
+                                    contentDescription = "help icon"
+                                )
+                            },
+                            text = {
+                                Text(text = "Help", color = Color.Gray)
+                            }
+                        )
+
+                        ChildDrawerConfig(
+                            icon = {
+                                Icon(
+                                    painterResource(id = R.drawable.ic_round_logout_24),
+                                    tint = Color.Gray,
+                                    contentDescription = "logout icon"
+                                )
+                            },
+                            text = {
+                                Text(text = "Exit", color = Color.Gray)
+                            }
+                        )
+                    }
+                }
             }
         },
     ) {
@@ -140,16 +234,8 @@ fun ImageAndTextAppBar() {
 
 @Composable
 fun ConfigMenu() {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.clickable {}) {
-        //Text("characters", fontSize = 16.sp)
+    Row(verticalAlignment = Alignment.CenterVertically) {
         ItemDropDrawMenu()
-        /*     Icon(
-                 modifier = Modifier.height(16.dp),
-                 imageVector = Icons.Rounded.KeyboardArrowDown,
-                 contentDescription = "icon"
-             )*/
     }
 }
 
@@ -203,6 +289,25 @@ fun ItemDropDrawMenu() {
     }
 }
 
+
+@Composable
+fun ChildDrawerConfig(icon: @Composable () -> Unit, text: @Composable () -> Unit) {
+    Row(
+        modifier = Modifier
+            .background(Color.White)
+            .padding(top = Dimensions.padding_24dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        icon()
+        Spacer(modifier = Modifier.width(20.dp))
+        text()
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(
+            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+            contentDescription = "arrow", tint = Color.Gray
+        )
+    }
+}
 
 
 
