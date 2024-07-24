@@ -16,14 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.AccountBox
-import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -51,8 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -94,7 +88,7 @@ fun InitScreen() {
                             },
                             text = {
                                 Text(text = "Perfil", color = Color.Gray)
-                            }
+                            }, onclick = { Log.i("Jesus", "-> Has pulsado settings") }
                         )
 
                         ChildDrawerConfig(
@@ -107,8 +101,7 @@ fun InitScreen() {
                             },
                             text = {
                                 Text(text = "Favorite list", color = Color.Gray)
-                            }
-                        )
+                            }, onclick = { Log.i("Jesus", "-> Has pulsado Favorites") })
 
                         ChildDrawerConfig(
                             icon = {
@@ -120,7 +113,7 @@ fun InitScreen() {
                             },
                             text = {
                                 Text(text = "About us", color = Color.Gray)
-                            }
+                            }, onclick = { Log.i("Jesus", "-> Has pulsado about us") }
                         )
 
                         ChildDrawerConfig(
@@ -133,7 +126,7 @@ fun InitScreen() {
                             },
                             text = {
                                 Text(text = "Privacy", color = Color.Gray)
-                            }
+                            }, onclick = { Log.i("Jesus", "-> Has pulsado Politica") }
                         )
 
                         ChildDrawerConfig(
@@ -146,7 +139,7 @@ fun InitScreen() {
                             },
                             text = {
                                 Text(text = "Help", color = Color.Gray)
-                            }
+                            }, onclick = { Log.i("Jesus", "-> Has pulsado help") }
                         )
 
                         ChildDrawerConfig(
@@ -159,7 +152,7 @@ fun InitScreen() {
                             },
                             text = {
                                 Text(text = "Exit", color = Color.Gray)
-                            }
+                            }, onclick = { Log.i("Jesus", "-> Has pulsado exit") }
                         )
                     }
                 }
@@ -167,10 +160,7 @@ fun InitScreen() {
         },
     ) {
         Scaffold(
-
             topBar = { TopBarView(drawerState, scope) },
-
-
             content = { pading ->
                 Column(
                     modifier = Modifier
@@ -291,11 +281,17 @@ fun ItemDropDrawMenu() {
 
 
 @Composable
-fun ChildDrawerConfig(icon: @Composable () -> Unit, text: @Composable () -> Unit) {
+fun ChildDrawerConfig(
+    icon: @Composable () -> Unit,
+    text: @Composable () -> Unit,
+    onclick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .background(Color.White)
-            .padding(top = Dimensions.padding_24dp),
+            .padding(top = Dimensions.padding_24dp)
+            .clickable { onclick() },
+
         verticalAlignment = Alignment.CenterVertically
     ) {
         icon()
