@@ -63,7 +63,10 @@ object Dimensions {
 }
 
 @Composable
-fun InitScreen() {
+fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
+
+    val characters = bolaDracApiViewModel.onGetCharacters()
+
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     ModalNavigationDrawer(
