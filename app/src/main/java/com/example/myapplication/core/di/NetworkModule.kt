@@ -1,6 +1,6 @@
 package com.example.myapplication.core.di
 
-import com.example.myapplication.data.Network.DragonBallApiService
+import com.example.myapplication.data.network.DragonBallApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -8,7 +8,6 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Singleton
 
 
 @Module
@@ -36,7 +35,4 @@ object NetworkModule {
     @Provides
     fun provideOkHttpClient(): OkHttpClient =
         OkHttpClient.Builder().build()
-
-
-
 }
