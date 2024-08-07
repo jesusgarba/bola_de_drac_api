@@ -1,22 +1,37 @@
 package com.example.myapplication.data.network
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import com.example.myapplication.data.CharacterPagingSource
 import com.example.myapplication.data.network.response.DragonBallApiResponse
 import com.example.myapplication.presentation.model.Character
+import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
 import javax.inject.Inject
 
 class DragonBallApiRepository @Inject constructor(private val api: DragonBallApiService) {
-    suspend  fun getAllCharacters(): List<Character?>{
+    companion object {
+        const val MAX_ITEM = 10
+        const val PREFECTH_ITEMS = 3
+    }
 
-        val characters: MutableList<Character> = emptyList<Character>().toMutableList()
+    fun getAllCharacters(): Flow<PagingData<Character>> {
 
-        val apiResponse = api.getCharacters().body()
-        apiResponse?.items?.forEach {
-            val character = Character(it.id, it.name, it.ki, it.maxKi, it.race, it.gender, it.description, it.image, it.affiliation, it.deletedAt)
-            characters.add(character)
-        }
+        /*  val characters: MutableList<Character> = emptyList<Character>().toMutableList()
 
-        return characters
+          val apiResponse = api.getCharacters().body()
+          apiResponse?.items?.forEach {
+              val character = Character(it.id, it.name, it.ki, it.maxKi, it.race, it.gender, it.description, it.image, it.affiliation, it.deletedAt)
+              characters.add(character)
+          }
+
+          return characters*/
+        return Pager(
+            config = PagingConfig(pageSize = MAX_ITEM, prefetchDistance = PREFECTH_ITEMS),
+            pagingSourceFactory = {
+                CharacterPagingSource(api)
+            }).flow
     }
 }

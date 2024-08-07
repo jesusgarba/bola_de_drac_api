@@ -3,6 +3,7 @@ package com.example.myapplication.presentation
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Favorite
@@ -42,7 +45,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -50,9 +55,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import coil.compose.AsyncImage
 import com.example.myapplication.R
+import com.example.myapplication.presentation.model.Character
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import okhttp3.internal.wait
 
 
 object Dimensions {
@@ -65,7 +75,7 @@ object Dimensions {
 @Composable
 fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
 
-    val characters = bolaDracApiViewModel.onGetCharacters()
+    val characters = bolaDracApiViewModel.characters.collectAsLazyPagingItems()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -169,7 +179,8 @@ fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
                     modifier = Modifier
                         .padding(pading)
                 ) {
-                    Text("Content", color = Color.White)
+                    //Text("Content", color = Color.White)
+                    CharacterList(characters)
                 }
             },
         )
@@ -182,7 +193,7 @@ fun TopBarView(drawerState: DrawerState, scope: CoroutineScope) {
     Box(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             modifier = Modifier
-                .background(Color.White)
+                .background(Color.Red)
                 .shadow(elevation = 5.dp),
             navigationIcon = {
                 IconButton(onClick = {
@@ -213,7 +224,9 @@ fun ImageAndTextAppBar() {
         Box(
             modifier = Modifier
                 .height(48.dp)
-                .width(48.dp), contentAlignment = Alignment.Center
+                .width(48.dp)
+                .background(Color.White)
+            , contentAlignment = Alignment.Center
         ) {
             Image(
                 painterResource(id = R.drawable.icon_bola_drac),
@@ -245,9 +258,11 @@ fun ItemDropDrawMenu() {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable {
-                expanded = true
-            }) {
+            modifier = Modifier
+                .background(Color.White)
+                .clickable {
+                    expanded = true
+                }) {
             Text(
                 text = items[selectedIndex],
                 fontSize = 18.sp,
@@ -307,6 +322,62 @@ fun ChildDrawerConfig(
         )
     }
 }
+
+
+@Composable
+fun CharacterList(characters: LazyPagingItems<Character>) {
+    LazyColumn {
+        items(characters.itemCount) {
+            characters[it]?.let { character ->
+                ItemList(character)
+
+            }
+        }
+    }
+}
+
+
+@Composable
+fun ItemList(characterModel: Character) {
+    Box(
+        modifier = Modifier
+            .padding(24.dp)
+            .clip(RoundedCornerShape(24))
+            .border(2.dp, Color.Yellow, shape = RoundedCornerShape(0, 24, 0, 24))
+            .fillMaxWidth()
+            .height(250.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        AsyncImage(
+            model = characterModel.image,
+            contentDescription = "character image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Black.copy(alpha = 0.0f),
+                            Color.Black.copy(alpha = 0.6f),
+                            Color.Black.copy(alpha = 1f)
+                        )
+                    )
+                ),
+            contentAlignment = Alignment.Center
+        ){
+            Text(text = characterModel.name!!, color = Color.White, fontSize = 16.sp)
+        }
+    }
+}
+
+
+
+
+
 
 
 
