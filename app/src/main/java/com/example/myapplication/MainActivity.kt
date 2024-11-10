@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import PruebaList
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +22,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApplicationTheme {
                 InitScreen(bolaDracApiViewModel)
+//                PruebaList()
             }
         }
     }

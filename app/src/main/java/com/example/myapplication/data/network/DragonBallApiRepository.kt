@@ -11,27 +11,31 @@ import retrofit2.Response
 
 import javax.inject.Inject
 
-class DragonBallApiRepository @Inject constructor(private val api: DragonBallApiService) {
-    companion object {
-        const val MAX_ITEM = 10
-        const val PREFECTH_ITEMS = 3
-    }
+class DragonBallApiRepository @Inject constructor( val api: DragonBallApiService) {
 
-    fun getAllCharacters(): Flow<PagingData<Character>> {
+    suspend fun getAllCharacters(): List<Character> {
 
-        /*  val characters: MutableList<Character> = emptyList<Character>().toMutableList()
+        val characters: MutableList<Character> = emptyList<Character>().toMutableList()
 
-          val apiResponse = api.getCharacters().body()
-          apiResponse?.items?.forEach {
-              val character = Character(it.id, it.name, it.ki, it.maxKi, it.race, it.gender, it.description, it.image, it.affiliation, it.deletedAt)
-              characters.add(character)
-          }
+        for (page in 1..6){
+            val apiResponse = api.getCharacters(page)
+            apiResponse.items.forEach {
+                val character = Character(
+                    it.id,
+                    it.name,
+                    it.ki,
+                    it.maxKi,
+                    it.race,
+                    it.gender,
+                    it.description,
+                    it.image,
+                    it.affiliation,
+                    it.deletedAt
+                )
+                characters.add(character)
+            }
+        }
+        return characters
 
-          return characters*/
-        return Pager(
-            config = PagingConfig(pageSize = MAX_ITEM, prefetchDistance = PREFECTH_ITEMS),
-            pagingSourceFactory = {
-                CharacterPagingSource(api)
-            }).flow
     }
 }

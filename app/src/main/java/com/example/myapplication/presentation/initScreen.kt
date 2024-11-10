@@ -8,12 +8,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,14 +60,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.myapplication.R
 import com.example.myapplication.presentation.model.Character
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
 
 
 object Dimensions {
@@ -75,7 +77,8 @@ object Dimensions {
 @Composable
 fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
 
-    val characters = bolaDracApiViewModel.characters.collectAsLazyPagingItems()
+    val characterState by bolaDracApiViewModel.charactersState.collectAsState()
+    bolaDracApiViewModel.getUsers()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -172,25 +175,22 @@ fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
             }
         },
     ) {
+
         Scaffold(
-            topBar = { TopBarView(drawerState, scope) },
-            content = { pading ->
-                Column(
-                    modifier = Modifier
-                        .padding(pading)
-                ) {
-                    //Text("Content", color = Color.White)
-                    CharacterList(characters)
-                }
+            topBar = {
+                TopBarView(drawerState, scope)
             },
+            content = { padding ->
+                    CharacterList(characterState, padding)
+            }
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TopBarView(drawerState: DrawerState, scope: CoroutineScope) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun TopBarView(drawerState: DrawerState, scope: CoroutineScope) {
+
         TopAppBar(
             modifier = Modifier
                 .background(Color.Red)
@@ -208,171 +208,169 @@ fun TopBarView(drawerState: DrawerState, scope: CoroutineScope) {
             },
             title = { ImageAndTextAppBar() },
         )
-    }
-}
 
-@Composable
-fun ImageAndTextAppBar() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Spacer(modifier = Modifier.weight(0.5f))
-        ConfigMenu()
-        Spacer(modifier = Modifier.weight(0.5f))
+    }
+
+    @Composable
+    fun ImageAndTextAppBar() {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Spacer(modifier = Modifier.weight(0.5f))
+            ConfigMenu()
+            Spacer(modifier = Modifier.weight(0.5f))
+            Box(
+                modifier = Modifier
+                    .height(48.dp)
+                    .width(48.dp)
+                    .background(Color.White), contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painterResource(id = R.drawable.icon_bola_drac),
+                    contentDescription = "dragon ball icon",
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+        }
+    }
+
+    @Composable
+    fun ConfigMenu() {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            ItemDropDrawMenu()
+        }
+    }
+
+    @Composable
+    fun ItemDropDrawMenu() {
+        var expanded by remember { mutableStateOf(false) }
+        val items = listOf("characters", "transformations", "planets")
+        var selectedIndex by remember { mutableStateOf(0) }
+
         Box(
             modifier = Modifier
-                .height(48.dp)
-                .width(48.dp)
+                .wrapContentSize(Alignment.TopStart)
                 .background(Color.White)
-            , contentAlignment = Alignment.Center
         ) {
-            Image(
-                painterResource(id = R.drawable.icon_bola_drac),
-                contentDescription = "dragon ball icon",
-                contentScale = ContentScale.Fit
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .background(Color.White)
+                    .clickable {
+                        expanded = true
+                    }) {
+                Text(
+                    text = items[selectedIndex],
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Icon(
+                    modifier = Modifier.height(16.dp),
+                    imageVector = Icons.Rounded.KeyboardArrowDown,
+                    contentDescription = "icon"
+                )
+            }
+
+            DropdownMenu(
+                modifier = Modifier.background(Color.White),
+                expanded = expanded,
+                offset = DpOffset(x = (-15).dp, y = (+10).dp),
+                onDismissRequest = { expanded = false },
+
+                ) {
+                items.forEachIndexed { index, s ->
+                    DropdownMenuItem(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .background(Color.White),
+                        text = { Text(text = s, fontSize = 16.sp, fontWeight = FontWeight.Normal) },
+                        onClick = {
+                            selectedIndex = index
+                            expanded = false
+                        })
+                }
+            }
         }
-
     }
-}
 
-@Composable
-fun ConfigMenu() {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        ItemDropDrawMenu()
-    }
-}
 
-@Composable
-fun ItemDropDrawMenu() {
-    var expanded by remember { mutableStateOf(false) }
-    val items = listOf("characters", "transformations", "planets")
-    var selectedIndex by remember { mutableStateOf(0) }
-
-    Box(
-        modifier = Modifier
-            .wrapContentSize(Alignment.TopStart)
-            .background(Color.White)
+    @Composable
+    fun ChildDrawerConfig(
+        icon: @Composable () -> Unit,
+        text: @Composable () -> Unit,
+        onclick: () -> Unit,
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .background(Color.White)
-                .clickable {
-                    expanded = true
-                }) {
-            Text(
-                text = items[selectedIndex],
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
+                .padding(top = Dimensions.padding_24dp)
+                .clickable { onclick() },
+
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            icon()
+            Spacer(modifier = Modifier.width(20.dp))
+            text()
+            Spacer(modifier = Modifier.weight(1f))
             Icon(
-                modifier = Modifier.height(16.dp),
-                imageVector = Icons.Rounded.KeyboardArrowDown,
-                contentDescription = "icon"
+                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                contentDescription = "arrow", tint = Color.Gray
             )
         }
+    }
 
-        DropdownMenu(
-            modifier = Modifier.background(Color.White),
-            expanded = expanded,
-            offset = DpOffset(x = (-15).dp, y = (+10).dp),
-            onDismissRequest = { expanded = false },
 
-            ) {
-            items.forEachIndexed { index, s ->
-                DropdownMenuItem(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .background(Color.White),
-                    text = { Text(text = s, fontSize = 16.sp, fontWeight = FontWeight.Normal) },
-                    onClick = {
-                        selectedIndex = index
-                        expanded = false
-                    })
+    @Composable
+    fun CharacterList(characters: List<Character>, padding: PaddingValues) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            LazyColumn(modifier = Modifier.consumeWindowInsets(padding).padding(top = 20.dp), contentPadding = padding) {
+                items(characters.size) { id ->
+                    ItemList( characterModel = characters[id])
+                }
             }
         }
+
     }
-}
 
 
-@Composable
-fun ChildDrawerConfig(
-    icon: @Composable () -> Unit,
-    text: @Composable () -> Unit,
-    onclick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .background(Color.White)
-            .padding(top = Dimensions.padding_24dp)
-            .clickable { onclick() },
-
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        icon()
-        Spacer(modifier = Modifier.width(20.dp))
-        text()
-        Spacer(modifier = Modifier.weight(1f))
-        Icon(
-            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-            contentDescription = "arrow", tint = Color.Gray
-        )
-    }
-}
-
-
-@Composable
-fun CharacterList(characters: LazyPagingItems<Character>) {
-    LazyColumn {
-        items(characters.itemCount) {
-            characters[it]?.let { character ->
-                ItemList(character)
-
-            }
-        }
-    }
-}
-
-
-@Composable
-fun ItemList(characterModel: Character) {
-    Box(
-        modifier = Modifier
-            .padding(24.dp)
-            .clip(RoundedCornerShape(24))
-            .border(2.dp, Color.Yellow, shape = RoundedCornerShape(0, 24, 0, 24))
-            .fillMaxWidth()
-            .height(250.dp),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        AsyncImage(
-            model = characterModel.image,
-            contentDescription = "character image",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
+    @Composable
+    fun ItemList( characterModel: Character) {
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            Color.Black.copy(alpha = 0.0f),
-                            Color.Black.copy(alpha = 0.6f),
-                            Color.Black.copy(alpha = 1f)
+                .clip(RoundedCornerShape(24))
+                .border(2.dp, Color.Yellow, shape = RoundedCornerShape(0, 24, 0, 24))
+                .size(300.dp),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            AsyncImage(
+                model = characterModel.image,
+                contentDescription = "character image",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color.Black.copy(alpha = 0.0f),
+                                Color.Black.copy(alpha = 0.6f),
+                                Color.Black.copy(alpha = 1f)
+                            )
                         )
-                    )
-                ),
-            contentAlignment = Alignment.Center
-        ){
-            Text(text = characterModel.name!!, color = Color.White, fontSize = 16.sp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = characterModel.name!!, color = Color.White, fontSize = 16.sp)
+            }
         }
     }
-}
+
 
 
 
