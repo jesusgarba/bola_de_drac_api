@@ -8,5 +8,5 @@ import retrofit2.http.Query
 
 interface DragonBallApiService {
     @GET("api/characters")
-    suspend fun getCharacters(@Query("currentPage") page: Int): DragonBallApiResponse
+    suspend fun getCharacters(@Query("page") page: Int): DragonBallApiResponse
 }
