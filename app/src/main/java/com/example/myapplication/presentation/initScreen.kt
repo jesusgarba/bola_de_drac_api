@@ -348,12 +348,6 @@ fun ItemList(characterModel: Character) {
             .size(300.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
-        AsyncImage(
-            model = characterModel.image,
-            contentDescription = "character image",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Fit
-        )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -371,6 +365,14 @@ fun ItemList(characterModel: Character) {
         ) {
             Text(text = characterModel.name!!, color = Color.White, fontSize = 16.sp)
         }
+        
+        AsyncImage(
+            model = characterModel.image,
+            contentDescription = "character image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Fit
+        )
+
     }
 }
 
