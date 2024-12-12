@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,6 +60,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.myapplication.R
 import com.example.myapplication.presentation.model.Character
@@ -78,8 +79,7 @@ object Dimensions {
 @Composable
 fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
 
-    val characterState by bolaDracApiViewModel.charactersState.collectAsState()
-    bolaDracApiViewModel.getUsers()
+    val characters = bolaDracApiViewModel.charactersPaging.collectAsLazyPagingItems()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -182,7 +182,7 @@ fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
                 TopBarView(drawerState, scope)
             },
             content = { padding ->
-                CharacterList(characterState, padding)
+                CharacterList(characters, padding)
             }
         )
     }
@@ -321,7 +321,7 @@ fun ChildDrawerConfig(
 
 
 @Composable
-fun CharacterList(characters: List<Character>, padding: PaddingValues) {
+fun CharacterList(characters: LazyPagingItems<Character>, padding: PaddingValues) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         LazyVerticalGrid(
             modifier = Modifier
@@ -329,8 +329,11 @@ fun CharacterList(characters: List<Character>, padding: PaddingValues) {
                 .padding(top = 20.dp), columns = GridCells.Fixed(2),
             contentPadding = padding
         ) {
-            items(characters.size) { id ->
-                ItemList(characterModel = characters[id])
+            items(characters.itemCount) {
+                characters[it]?.let {character->
+                    ItemList(characterModel = character)
+                }
+
             }
         }
     }
