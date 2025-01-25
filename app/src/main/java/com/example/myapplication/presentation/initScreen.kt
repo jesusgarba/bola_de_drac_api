@@ -12,14 +12,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,6 +30,8 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
@@ -64,8 +67,10 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.myapplication.R
 import com.example.myapplication.presentation.model.Character
+import com.example.myapplication.ui.theme.ColorCard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import okhttp3.internal.wait
 
 
 object Dimensions {
@@ -322,15 +327,16 @@ fun ChildDrawerConfig(
 
 @Composable
 fun CharacterList(characters: List<Character>, padding: PaddingValues) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.White), contentAlignment = Alignment.Center) {
         LazyVerticalGrid(
             modifier = Modifier
                 .consumeWindowInsets(padding)
-                .padding(top = 20.dp), columns = GridCells.Fixed(2),
+                .padding(top = 20.dp), columns = GridCells.Fixed(1),
             contentPadding = padding
         ) {
             items(characters.size) { id ->
-                ItemList(characterModel = characters[id])
+                //ItemList(characterModel = characters[id])
+                NewItemRow(characterModel = characters[id])
             }
         }
     }
@@ -339,7 +345,8 @@ fun CharacterList(characters: List<Character>, padding: PaddingValues) {
 @Composable
 fun ItemList(characterModel: Character) {
     Box(
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier
+            .padding(8.dp)
             .clip(RoundedCornerShape(24))
             .border(2.dp, Color.Yellow, shape = RoundedCornerShape(0, 24, 0, 24))
             .size(300.dp),
@@ -369,6 +376,64 @@ fun ItemList(characterModel: Character) {
             Text(text = characterModel.name!!, color = Color.White, fontSize = 16.sp)
         }
     }
+}
+
+@Composable
+fun NewItemRow(characterModel: Character) {
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 20.dp, vertical = 2.dp)
+            .size(160.dp)
+
+            .background(Color.White),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.Bottom) {
+
+
+            Card(
+                modifier = Modifier
+                    .height(120.dp)
+                    .width(250.dp),
+
+                colors = CardDefaults.cardColors(containerColor = ColorCard)
+
+            ) {
+                Text(
+                    modifier = Modifier.padding(start = 15.dp, top = 15.dp),
+                    text = characterModel.name!!,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    modifier = Modifier.padding(start = 15.dp, top = 5.dp),
+                    text = characterModel.race ?: "",
+                    color = Color.White,
+                    fontSize = 12.sp
+
+                )
+                Text(
+                    modifier = Modifier.padding(start = 15.dp, top = 5.dp),
+                    text = characterModel.affiliation ?: "",
+                    color = Color.White,
+                    fontSize = 12.sp
+
+                )
+            }
+
+            AsyncImage(
+                modifier = Modifier
+                    .fillMaxHeight()
+                   .offset(x = (-25).dp, y = 0.dp),
+                model = characterModel.image,
+                contentDescription = "character image",
+                contentScale = ContentScale.Fit
+            )
+
+
+        }
+    }
+
 }
 
 
