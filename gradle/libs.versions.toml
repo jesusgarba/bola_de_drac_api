@@ -13,6 +13,7 @@ hilt = "2.49"
 retrofit = "2.11.0"
 coilCompose = "2.6.0"
 hiltNavigationCompose = "1.2.0"
+navigationCompose = "2.8.2"
 
 
 [libraries]
@@ -30,6 +31,7 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 pagingCompose = { group = "androidx.paging", name = "paging-compose", version.ref = "pagingCompose" }
