@@ -1,6 +1,6 @@
-package com.example.myapplication.core.navigation
+/*package com.example.myapplication.core.navigation
 
 import com.google.gson.annotations.SerializedName
 
 @SerializedName
-object InitialScreen
+object InitialScreen*/

@@ -1,4 +1,4 @@
-package com.example.myapplication.core.navigation
+/*package com.example.myapplication.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
@@ -11,4 +11,4 @@ fun NavigationWrapper() {
    // NavHost(navController = navController, startDestination = ){
 
     }
-}
+}*/
