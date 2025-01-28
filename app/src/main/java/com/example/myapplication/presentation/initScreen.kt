@@ -42,7 +42,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,7 +76,7 @@ object Dimensions {
 }
 
 @Composable
-fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
+fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel, navigateToDetail: (Int) -> Unit) {
 
     val characters = bolaDracApiViewModel.charactersPaging.collectAsLazyPagingItems()
 
@@ -182,7 +181,7 @@ fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
                 TopBarView(drawerState, scope)
             },
             content = { padding ->
-                CharacterList(characters, padding)
+                CharacterList(characters, padding, navigateToDetail)
             }
         )
     }
@@ -321,7 +320,11 @@ fun ChildDrawerConfig(
 
 
 @Composable
-fun CharacterList(characters: LazyPagingItems<Character>, padding: PaddingValues) {
+fun CharacterList(
+    characters: LazyPagingItems<Character>,
+    padding: PaddingValues,
+    navigateToDetail: (Int) -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         LazyVerticalGrid(
             modifier = Modifier
@@ -331,7 +334,7 @@ fun CharacterList(characters: LazyPagingItems<Character>, padding: PaddingValues
         ) {
             items(characters.itemCount) {
                 characters[it]?.let {character->
-                    ItemList(characterModel = character)
+                    ItemList(characterModel = character, navigateToDetail)
                 }
 
             }
@@ -340,9 +343,9 @@ fun CharacterList(characters: LazyPagingItems<Character>, padding: PaddingValues
 }
 
 @Composable
-fun ItemList(characterModel: Character) {
+fun ItemList(characterModel: Character, navigateToDetail: (Int) -> Unit) {
     Box(
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.padding(8.dp).clickable { navigateToDetail(characterModel.id!!) }
             .clip(RoundedCornerShape(24))
             .border(2.dp, Color.Yellow, shape = RoundedCornerShape(0, 24, 0, 24))
             .size(300.dp),
