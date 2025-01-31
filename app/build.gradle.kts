@@ -1,11 +1,10 @@
-import org.apache.tools.ant.util.JavaEnvUtils.VERSION_11
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("kapt")
     alias(libs.plugins.hilt)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
 
 }
 
@@ -66,7 +65,6 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    implementation(libs.dagger.hilt)
     implementation(libs.dagger.hilt.navigation)
     kapt(libs.dagger.hilt.compiler)
 
@@ -85,5 +83,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.retrofit2.retrofit)
     implementation(libs.converter.gson)
+
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
 
 }

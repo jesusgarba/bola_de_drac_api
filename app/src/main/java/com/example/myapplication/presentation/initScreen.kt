@@ -46,7 +46,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,7 +71,6 @@ import com.example.myapplication.presentation.model.Character
 import com.example.myapplication.ui.theme.ColorCard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
 
 
 object Dimensions {
@@ -83,7 +81,7 @@ object Dimensions {
 }
 
 @Composable
-fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
+fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel, navigateToDetail: (Int) -> Unit) {
 
     val characters = bolaDracApiViewModel.charactersPaging.collectAsLazyPagingItems()
 
@@ -188,7 +186,7 @@ fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
                 TopBarView(drawerState, scope)
             },
             content = { padding ->
-                CharacterList(characters, padding)
+                CharacterList(characters, padding, navigateToDetail)
             }
         )
     }
@@ -214,7 +212,6 @@ fun TopBarView(drawerState: DrawerState, scope: CoroutineScope) {
         },
         title = { ImageAndTextAppBar() },
     )
-
 }
 
 @Composable
@@ -327,33 +324,36 @@ fun ChildDrawerConfig(
 
 
 @Composable
-
-fun CharacterList(characters: LazyPagingItems<Character>, padding: PaddingValues) {
+fun CharacterList(
+    characters: LazyPagingItems<Character>,
+    padding: PaddingValues,
+    navigateToDetail: (Int) -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
         LazyVerticalGrid(
-            modifier = Modifier.background(Color.White)
+            modifier = Modifier
+                .background(Color.White)
                 .consumeWindowInsets(padding)
                 .padding(top = 20.dp), columns = GridCells.Fixed(1),
             contentPadding = padding
         ) {
 
             items(characters.itemCount) {
-                characters[it]?.let {character->
-                    NewItemRow(character)
+                characters[it]?.let { character ->
+                    NewItemRow(characterModel = character, navigateToDetail = navigateToDetail)
                 }
-
-
             }
         }
     }
 }
 
 @Composable
-fun ItemList(characterModel: Character) {
+fun ItemList(characterModel: Character, navigateToDetail: (Int) -> Unit) {
     Box(
         modifier = Modifier
             .padding(8.dp)
+            .clickable { navigateToDetail(characterModel.id!!) }
             .clip(RoundedCornerShape(24))
             .border(2.dp, Color.Yellow, shape = RoundedCornerShape(0, 24, 0, 24))
             .size(300.dp),
@@ -376,7 +376,7 @@ fun ItemList(characterModel: Character) {
         ) {
             Text(text = characterModel.name!!, color = Color.White, fontSize = 16.sp)
         }
-        
+
         AsyncImage(
             model = characterModel.image,
             contentDescription = "character image",
@@ -388,10 +388,11 @@ fun ItemList(characterModel: Character) {
 }
 
 @Composable
-fun NewItemRow(characterModel: Character) {
+fun NewItemRow(characterModel: Character, navigateToDetail: (Int) -> Unit) {
     Box(
         modifier = Modifier
             .padding(horizontal = 20.dp, vertical = 2.dp)
+            .clickable { navigateToDetail(characterModel.id!!) }
             .size(160.dp)
 
             .background(Color.White),
@@ -433,16 +434,13 @@ fun NewItemRow(characterModel: Character) {
             AsyncImage(
                 modifier = Modifier
                     .fillMaxHeight()
-                   .offset(x = (-25).dp, y = 0.dp),
+                    .offset(x = (-25).dp, y = 0.dp),
                 model = characterModel.image,
                 contentDescription = "character image",
                 contentScale = ContentScale.Fit
             )
-
-
         }
     }
-
 }
 
 
