@@ -332,7 +332,7 @@ fun CharacterList(characters: LazyPagingItems<Character>, padding: PaddingValues
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
         LazyVerticalGrid(
-            modifier = Modifier
+            modifier = Modifier.background(Color.White)
                 .consumeWindowInsets(padding)
                 .padding(top = 20.dp), columns = GridCells.Fixed(1),
             contentPadding = padding
@@ -340,7 +340,7 @@ fun CharacterList(characters: LazyPagingItems<Character>, padding: PaddingValues
 
             items(characters.itemCount) {
                 characters[it]?.let {character->
-                    ItemList(characterModel = character)
+                    NewItemRow(character)
                 }
 
 
