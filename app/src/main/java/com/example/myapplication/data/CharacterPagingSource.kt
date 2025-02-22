@@ -19,6 +19,7 @@ class CharacterPagingSource  @Inject constructor(private val api:DragonBallApiSe
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Character> {
         return try {
             val page = params.key ?:1
+
             val response: DragonBallApiWrapperResponse= api.getAllCharactersWrapper(page)
             val characters: List<ItemsResponse> = response.items
 

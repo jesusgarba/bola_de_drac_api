@@ -1,4 +1,4 @@
-package com.example.myapplication.presentation
+package com.example.myapplication.presentation.homeScreen
 
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -81,7 +81,7 @@ object Dimensions {
 }
 
 @Composable
-fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel, navigateToDetail: (Int) -> Unit) {
+fun HomeScreen(bolaDracApiViewModel: HomeViewModel, navigateToDetail: (Int) -> Unit) {
 
     val characters = bolaDracApiViewModel.charactersPaging.collectAsLazyPagingItems()
 

@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.myapplication.data.CharacterPagingSource
+import com.example.myapplication.data.network.response.CharacterApiWraperResponse
 import com.example.myapplication.presentation.model.Character
 import kotlinx.coroutines.flow.Flow
 
@@ -21,5 +22,10 @@ class DragonBallApiRepository @Inject constructor( val api: DragonBallApiService
             pagingSourceFactory = {
                 CharacterPagingSource(api = api)
             }).flow
+    }
+
+    suspend fun getCharacterById(id: Int): CharacterApiWraperResponse{
+       val response: CharacterApiWraperResponse =  api.getCharacterWrapper(id)
+        return response
     }
 }
