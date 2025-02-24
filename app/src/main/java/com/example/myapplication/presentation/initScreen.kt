@@ -1,5 +1,8 @@
 package com.example.myapplication.presentation
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -46,6 +49,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,19 +62,25 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.myapplication.R
 import com.example.myapplication.presentation.model.Character
 import com.example.myapplication.ui.theme.ColorCard
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 object Dimensions {
@@ -431,14 +441,53 @@ fun NewItemRow(characterModel: Character, navigateToDetail: (Int) -> Unit) {
                 )
             }
 
-            AsyncImage(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .offset(x = (-25).dp, y = 0.dp),
-                model = characterModel.image,
-                contentDescription = "character image",
-                contentScale = ContentScale.Fit
-            )
+             AsyncImage(
+                 modifier = Modifier
+                     .fillMaxHeight()
+                     .offset(x = (-25).dp, y = 0.dp),
+                 model = characterModel.image,
+                 contentDescription = "character image",
+                 contentScale = ContentScale.Fit,
+                 onSuccess = {
+                     var bitmap = (it.result.drawable as BitmapDrawable).bitmap
+                     var bitmapCopy = bitmap.copy(Bitmap.Config.ARGB_8888,true)
+                     val width = bitmapCopy.width
+                     val height = bitmapCopy.height
+                     var pixel = 0
+                     for (y in 0 until height){
+                         for (x in 0 until width){
+                             pixel = bitmapCopy.getPixel(x,y)
+                         }
+                     }
+
+
+
+                   val a=0
+                 }
+             )
+
+
+        }
+    }
+
+
+}
+
+@Composable
+fun EditImage(modifier: Modifier, url: String) {
+    var imageBitmap: Bitmap
+    val context = LocalContext.current
+    val imageLoader = ImageLoader(context)
+
+    val request = ImageRequest.Builder(context)
+        .data(url)
+        .target { result -> imageBitmap = result.current.toBitmap() }
+        .build()
+
+    LaunchedEffect(request) {
+        withContext(Dispatchers.IO) {
+            imageLoader.execute(request)
+
         }
     }
 }
