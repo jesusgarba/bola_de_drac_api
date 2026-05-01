@@ -22,7 +22,12 @@ fun NavigationWrapper(bolaDracApiViewModel: BolaDracApiViewModel) {
 
         composable<Detail> { backStackEntry ->
             val detail = backStackEntry.toRoute<Detail>()
-            DetailScreen(detail.id) { navController.navigateUp() }
+            DetailScreen(
+                id = detail.id,
+                bolaDracApiViewModel = bolaDracApiViewModel
+            ) {
+                navController.navigateUp()
+            }
         }
     }
 }

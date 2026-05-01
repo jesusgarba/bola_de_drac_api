@@ -22,4 +22,8 @@ class DragonBallApiRepository @Inject constructor( val api: DragonBallApiService
                 CharacterPagingSource(api = api)
             }).flow
     }
+
+    suspend fun getCharacterById(id: Int): Character {
+        return api.getCharacterById(id).toPresentation()
+    }
 }
