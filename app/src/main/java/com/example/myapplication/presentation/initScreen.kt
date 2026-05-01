@@ -3,24 +3,35 @@ package com.example.myapplication.presentation
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
@@ -42,7 +53,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -50,7 +63,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import coil.compose.AsyncImage
 import com.example.myapplication.R
+import com.example.myapplication.presentation.model.Character
+import com.example.myapplication.ui.theme.ColorCard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -63,9 +81,9 @@ object Dimensions {
 }
 
 @Composable
-fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
+fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel, navigateToDetail: (Int) -> Unit) {
 
-    val characters = bolaDracApiViewModel.onGetCharacters()
+    val characters = bolaDracApiViewModel.charactersPaging.collectAsLazyPagingItems()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -162,16 +180,14 @@ fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
             }
         },
     ) {
+
         Scaffold(
-            topBar = { TopBarView(drawerState, scope) },
-            content = { pading ->
-                Column(
-                    modifier = Modifier
-                        .padding(pading)
-                ) {
-                    Text("Content", color = Color.White)
-                }
+            topBar = {
+                TopBarView(drawerState, scope)
             },
+            content = { padding ->
+                CharacterList(characters, padding, navigateToDetail)
+            }
         )
     }
 }
@@ -179,25 +195,23 @@ fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarView(drawerState: DrawerState, scope: CoroutineScope) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(
-            modifier = Modifier
-                .background(Color.White)
-                .shadow(elevation = 5.dp),
-            navigationIcon = {
-                IconButton(onClick = {
-                    scope.launch {
-                        drawerState.apply {
-                            if (isClosed) open() else close()
-                        }
+
+    TopAppBar(
+        modifier = Modifier
+            .shadow(elevation = 5.dp),
+        navigationIcon = {
+            IconButton(onClick = {
+                scope.launch {
+                    drawerState.apply {
+                        if (isClosed) open() else close()
                     }
-                }) {
-                    Icon(imageVector = Icons.Rounded.Menu, contentDescription = "menu")
                 }
-            },
-            title = { ImageAndTextAppBar() },
-        )
-    }
+            }) {
+                Icon(imageVector = Icons.Rounded.Menu, contentDescription = "menu")
+            }
+        },
+        title = { ImageAndTextAppBar() },
+    )
 }
 
 @Composable
@@ -213,12 +227,13 @@ fun ImageAndTextAppBar() {
         Box(
             modifier = Modifier
                 .height(48.dp)
-                .width(48.dp), contentAlignment = Alignment.Center
+                .width(48.dp)
+                .background(Color.White), contentAlignment = Alignment.Center
         ) {
             Image(
                 painterResource(id = R.drawable.icon_bola_drac),
                 contentDescription = "dragon ball icon",
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.Crop
             )
         }
 
@@ -241,13 +256,13 @@ fun ItemDropDrawMenu() {
     Box(
         modifier = Modifier
             .wrapContentSize(Alignment.TopStart)
-            .background(Color.White)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable {
-                expanded = true
-            }) {
+            modifier = Modifier
+                .clickable {
+                    expanded = true
+                }) {
             Text(
                 text = items[selectedIndex],
                 fontSize = 18.sp,
@@ -270,8 +285,7 @@ fun ItemDropDrawMenu() {
             items.forEachIndexed { index, s ->
                 DropdownMenuItem(
                     modifier = Modifier
-                        .wrapContentSize()
-                        .background(Color.White),
+                        .wrapContentSize(),
                     text = { Text(text = s, fontSize = 16.sp, fontWeight = FontWeight.Normal) },
                     onClick = {
                         selectedIndex = index
@@ -287,7 +301,7 @@ fun ItemDropDrawMenu() {
 fun ChildDrawerConfig(
     icon: @Composable () -> Unit,
     text: @Composable () -> Unit,
-    onclick: () -> Unit
+    onclick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -307,6 +321,133 @@ fun ChildDrawerConfig(
         )
     }
 }
+
+
+@Composable
+fun CharacterList(
+    characters: LazyPagingItems<Character>,
+    padding: PaddingValues,
+    navigateToDetail: (Int) -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+
+        LazyVerticalGrid(
+            modifier = Modifier
+                .background(Color.White)
+                .consumeWindowInsets(padding)
+                .padding(top = 20.dp), columns = GridCells.Fixed(1),
+            contentPadding = padding
+        ) {
+
+            items(characters.itemCount) {
+                characters[it]?.let { character ->
+                    NewItemRow(characterModel = character, navigateToDetail = navigateToDetail)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ItemList(characterModel: Character, navigateToDetail: (Int) -> Unit) {
+    Box(
+        modifier = Modifier
+            .padding(8.dp)
+            .clickable { navigateToDetail(characterModel.id!!) }
+            .clip(RoundedCornerShape(24))
+            .border(2.dp, Color.Yellow, shape = RoundedCornerShape(0, 24, 0, 24))
+            .size(300.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color.Black.copy(alpha = 0.0f),
+                            Color.Black.copy(alpha = 0.6f),
+                            Color.Black.copy(alpha = 1f)
+                        )
+                    )
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = characterModel.name!!, color = Color.White, fontSize = 16.sp)
+        }
+
+        AsyncImage(
+            model = characterModel.image,
+            contentDescription = "character image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Fit
+        )
+
+    }
+}
+
+@Composable
+fun NewItemRow(characterModel: Character, navigateToDetail: (Int) -> Unit) {
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 20.dp, vertical = 2.dp)
+            .clickable { navigateToDetail(characterModel.id!!) }
+            .size(160.dp)
+
+            .background(Color.White),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.Bottom) {
+
+
+            Card(
+                modifier = Modifier
+                    .height(120.dp)
+                    .width(250.dp),
+
+                colors = CardDefaults.cardColors(containerColor = ColorCard)
+
+            ) {
+                Text(
+                    modifier = Modifier.padding(start = 15.dp, top = 15.dp),
+                    text = characterModel.name!!,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    modifier = Modifier.padding(start = 15.dp, top = 5.dp),
+                    text = characterModel.race ?: "",
+                    color = Color.White,
+                    fontSize = 12.sp
+
+                )
+                Text(
+                    modifier = Modifier.padding(start = 15.dp, top = 5.dp),
+                    text = characterModel.affiliation ?: "",
+                    color = Color.White,
+                    fontSize = 12.sp
+
+                )
+            }
+
+            AsyncImage(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .offset(x = (-25).dp, y = 0.dp),
+                model = characterModel.image,
+                contentDescription = "character image",
+                contentScale = ContentScale.Fit
+            )
+        }
+    }
+}
+
+
+
+
+
+
 
 
 

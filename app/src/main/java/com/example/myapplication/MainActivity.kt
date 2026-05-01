@@ -5,8 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import com.example.myapplication.core.navigation.NavigationWrapper
 import com.example.myapplication.presentation.BolaDracApiViewModel
-import com.example.myapplication.presentation.InitScreen
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,7 +20,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-                InitScreen(bolaDracApiViewModel)
+                NavigationWrapper(bolaDracApiViewModel)
+                //InitScreen(bolaDracApiViewModel)
             }
         }
     }

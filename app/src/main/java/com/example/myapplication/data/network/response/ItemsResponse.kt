@@ -1,5 +1,6 @@
 package com.example.myapplication.data.network.response
 
+import com.example.myapplication.presentation.model.Character
 import com.google.gson.annotations.SerializedName
 
 data class ItemsResponse(
@@ -13,4 +14,19 @@ data class ItemsResponse(
     @SerializedName("image") val image: String,
     @SerializedName("affiliation") val affiliation: String,
     @SerializedName("deletedAt") val deletedAt: String,
-)
+){
+    fun toPresentation():Character{
+        return Character(
+            id = id,
+            name = name,
+            ki = ki,
+            maxKi = maxKi,
+            race = race,
+            gender = gender,
+            description = description,
+            image = image,
+            affiliation = affiliation,
+            deletedAt = deletedAt
+        )
+    }
+}
