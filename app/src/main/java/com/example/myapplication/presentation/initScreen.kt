@@ -250,7 +250,7 @@ fun ConfigMenu() {
 @Composable
 fun ItemDropDrawMenu() {
     var expanded by remember { mutableStateOf(false) }
-    val items = listOf("characters", "transformations", "planets")
+    val items = listOf("characters", "opening")
     var selectedIndex by remember { mutableStateOf(0) }
 
     Box(
