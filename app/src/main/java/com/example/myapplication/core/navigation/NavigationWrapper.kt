@@ -8,6 +8,7 @@ import androidx.navigation.toRoute
 import com.example.myapplication.presentation.BolaDracApiViewModel
 import com.example.myapplication.presentation.DetailScreen
 import com.example.myapplication.presentation.InitScreen
+import com.example.myapplication.presentation.OpeningsScreen
 
 
 @Composable
@@ -15,9 +16,15 @@ fun NavigationWrapper(bolaDracApiViewModel: BolaDracApiViewModel) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Initial) {
         composable<Initial> {
-            InitScreen(bolaDracApiViewModel) { id ->
-                navController.navigate(Detail(id))
-            }
+            InitScreen(
+                bolaDracApiViewModel = bolaDracApiViewModel,
+                navigateToDetail = { id ->
+                    navController.navigate(Detail(id))
+                },
+                navigateToOpenings = {
+                    navController.navigate(Openings)
+                }
+            )
         }
 
         composable<Detail> { backStackEntry ->
@@ -26,6 +33,12 @@ fun NavigationWrapper(bolaDracApiViewModel: BolaDracApiViewModel) {
                 id = detail.id,
                 bolaDracApiViewModel = bolaDracApiViewModel
             ) {
+                navController.navigateUp()
+            }
+        }
+
+        composable<Openings> {
+            OpeningsScreen {
                 navController.navigateUp()
             }
         }

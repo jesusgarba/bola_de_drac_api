@@ -81,7 +81,11 @@ object Dimensions {
 }
 
 @Composable
-fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel, navigateToDetail: (Int) -> Unit) {
+fun InitScreen(
+    bolaDracApiViewModel: BolaDracApiViewModel,
+    navigateToDetail: (Int) -> Unit,
+    navigateToOpenings: () -> Unit,
+) {
 
     val characters = bolaDracApiViewModel.charactersPaging.collectAsLazyPagingItems()
 
@@ -183,7 +187,7 @@ fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel, navigateToDetail: (In
 
         Scaffold(
             topBar = {
-                TopBarView(drawerState, scope)
+                TopBarView(drawerState, scope, navigateToOpenings)
             },
             content = { padding ->
                 CharacterList(characters, padding, navigateToDetail)
@@ -194,7 +198,11 @@ fun InitScreen(bolaDracApiViewModel: BolaDracApiViewModel, navigateToDetail: (In
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarView(drawerState: DrawerState, scope: CoroutineScope) {
+fun TopBarView(
+    drawerState: DrawerState,
+    scope: CoroutineScope,
+    navigateToOpenings: () -> Unit,
+) {
 
     TopAppBar(
         modifier = Modifier
@@ -210,19 +218,19 @@ fun TopBarView(drawerState: DrawerState, scope: CoroutineScope) {
                 Icon(imageVector = Icons.Rounded.Menu, contentDescription = "menu")
             }
         },
-        title = { ImageAndTextAppBar() },
+        title = { ImageAndTextAppBar(navigateToOpenings) },
     )
 }
 
 @Composable
-fun ImageAndTextAppBar() {
+fun ImageAndTextAppBar(navigateToOpenings: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
         Spacer(modifier = Modifier.weight(0.5f))
-        ConfigMenu()
+        ConfigMenu(navigateToOpenings)
         Spacer(modifier = Modifier.weight(0.5f))
         Box(
             modifier = Modifier
@@ -241,17 +249,20 @@ fun ImageAndTextAppBar() {
 }
 
 @Composable
-fun ConfigMenu() {
+fun ConfigMenu(navigateToOpenings: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        ItemDropDrawMenu()
+        ItemDropDrawMenu(navigateToOpenings)
     }
 }
 
 @Composable
-fun ItemDropDrawMenu() {
+fun ItemDropDrawMenu(navigateToOpenings: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val items = listOf("characters", "transformations", "planets")
-    var selectedIndex by remember { mutableStateOf(0) }
+    val items = listOf(
+        DropDrawMenuOption(label = "characters", onClick = {}),
+        DropDrawMenuOption(label = "opening", onClick = navigateToOpenings)
+    )
+    val selectedItem = items.first()
 
     Box(
         modifier = Modifier
@@ -264,7 +275,7 @@ fun ItemDropDrawMenu() {
                     expanded = true
                 }) {
             Text(
-                text = items[selectedIndex],
+                text = selectedItem.label,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -282,19 +293,30 @@ fun ItemDropDrawMenu() {
             onDismissRequest = { expanded = false },
 
             ) {
-            items.forEachIndexed { index, s ->
+            items.forEach { item ->
                 DropdownMenuItem(
                     modifier = Modifier
                         .wrapContentSize(),
-                    text = { Text(text = s, fontSize = 16.sp, fontWeight = FontWeight.Normal) },
+                    text = {
+                        Text(
+                            text = item.label,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal
+                        )
+                    },
                     onClick = {
-                        selectedIndex = index
                         expanded = false
+                        item.onClick()
                     })
             }
         }
     }
 }
+
+private data class DropDrawMenuOption(
+    val label: String,
+    val onClick: () -> Unit,
+)
 
 
 @Composable
@@ -442,7 +464,6 @@ fun NewItemRow(characterModel: Character, navigateToDetail: (Int) -> Unit) {
         }
     }
 }
-
 
 
 
